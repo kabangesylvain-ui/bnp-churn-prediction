@@ -1,0 +1,132 @@
+
+## 🔬 3. Démarche méthodologique
+
+### 3.1 Pipeline global
+
+┌─────────────────────────┐
+│  1. Chargement & EDA    │
+│  - Statistiques         │
+│  - Distributions        │
+│  - Corrélations         │
+└───────────┬─────────────┘
+            ↓
+┌─────────────────────────┐
+│  2. Préparation         │
+│  - Split stratifié      │
+│  - Encodage (OneHot)    │
+│  - Standardisation      │
+└───────────┬─────────────┘
+            ↓
+┌─────────────────────────┐
+│  3. Modélisation        │
+│  - LR (baseline)        │
+│  - Random Forest        │
+│  - XGBoost optimisé     │
+└───────────┬─────────────┘
+            ↓
+┌─────────────────────────┐
+│  4. Évaluation          │
+│  - F1, Precision,       │
+│    Recall, ROC-AUC      │
+└───────────┬─────────────┘
+            ↓
+┌─────────────────────────┐
+│  5. Interprétation      │
+│  - Feature importance   │
+│  - Arbre de décision    │
+│  - SHAP                 │
+└───────────┬─────────────┘
+            ↓
+┌─────────────────────────┐
+│  6. Restitution métier  │
+│  - Règle simple         │
+│  - Export Excel         │
+└─────────────────────────┘
+
+┌───────────────────────┐
+│  1. Chargement & EDA  │  Statistiques, distributions, corrélations
+└──────────┬────────────┘
+           ↓
+┌───────────────────────┐
+│  2. Feature Engineering │  8 nouvelles features dérivées
+└──────────┬────────────┘
+           ↓
+┌───────────────────────┐
+│  3. Préparation       │  Split stratifié, encodage, scaling
+└──────────┬────────────┘
+           ↓
+┌───────────────────────┐
+│  4. Modélisation      │  LR, RF, XGB, LGB, Cat, Stacking, Voting
+└──────────┬────────────┘
+           ↓
+┌───────────────────────┐
+│  5. Évaluation        │  F1, Precision, Recall, ROC-AUC
+└──────────┬────────────┘
+           ↓
+┌───────────────────────┐
+│  6. Interprétation    │  Feature importance, arbre de décision
+└──────────┬────────────┘
+           ↓
+┌───────────────────────┐
+│  7. Déploiement       │  Sérialisation, API FastAPI
+└──────────┬────────────┘
+           ↓
+┌───────────────────────┐
+│  8. Restitution       │  Excel clients à risque
+└───────────────────────┘
+
+2. Déploiement API
+2.1 Architecture
+┌────────────────────┐
+│   Client HTTP      │
+│ (navigateur, curl) │
+└─────────┬──────────┘
+          ↓ POST /predict
+┌────────────────────┐
+│  API FastAPI       │
+│  - Feature eng.    │
+│  - Preprocessor    │
+│  - CatBoost model  │
+└─────────┬──────────┘
+          ↓ JSON response
+{
+  "churn_probability": 0.9754,
+  "risk_level": "CRITIQUE",
+  "action_recommandee": "Contacter..."
+}
+
+3 Exemple de requête
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "CreditScore": 600, "Geography": "Germany", "Gender": "Female",
+    "Age": 55, "Tenure": 3, "Balance": 120000,
+    "NumOfProducts": 3, "HasCrCard": 1, "IsActiveMember": 0,
+    "EstimatedSalary": 80000
+  }'
+
+4 Exemple de réponse
+
+{
+  "churn_probability": 0.9754,
+  "prediction": 1,
+  "risk_level": "CRITIQUE",
+  "action_recommandee": "Contacter immediatement (offre premium)",
+  "threshold_used": 0.58
+}
+
+5 Technologies
+Composant	Technologie
+Framework API	FastAPI
+Serveur ASGI	Uvicorn
+Validation	Pydantic v2
+Sérialisation modèle	joblib
+Documentation	Swagger UI (auto)
+
+
+6.1 Ciblage
+Indicateur	Valeur
+Clients actifs	7 963
+Clients à contacter	1 270 (16 %)
+Seuil utilisé	0.58
+Niveaux de risque	CRITIQUE / ÉLEVÉ / MOYEN / FAIBLE
